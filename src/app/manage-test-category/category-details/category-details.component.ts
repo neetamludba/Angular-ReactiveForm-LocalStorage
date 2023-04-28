@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';  // Importing formatDate function from Angular common module
-import { Component, OnInit } from '@angular/core'; // Importing Component and OnInit from Angular core module
+import { Component, AfterViewInit } from '@angular/core'; // Importing Component and OnInit from Angular core module
 import { FormGroup, FormControl, Validators } from '@angular/forms' // Importing FormGroup, FormControl, and Validators from Angular forms module
 import { Router, ActivatedRoute } from '@angular/router'; // Importing Router and ActivatedRoute from Angular router module
 import { TestCategoryService } from '../test-category.service'; // Importing TestCategoryService from test-category.service file in the same directory
@@ -11,7 +11,8 @@ import { TestCategoryService } from '../test-category.service'; // Importing Tes
   styleUrls: ['./category-details.component.css'] // An array of paths to the CSS stylesheets of the component
 })
 
-export class CategoryDetailsComponent implements OnInit {  // A class that defines the behavior of the component and implements the OnInit interface
+export class CategoryDetailsComponent implements AfterViewInit {
+  // A class that defines the behavior of the component and implements the OnInit interface
 
   constructor(
     private router: Router,
@@ -19,7 +20,7 @@ export class CategoryDetailsComponent implements OnInit {  // A class that defin
     private testCategoryService: TestCategoryService
   ) { } // A constructor that injects Router, ActivatedRoute, and TestCategoryService dependencies
 
-  ngOnInit(): void {  // A lifecycle hook that runs when the component is initialized
+  ngAfterViewInit(): void {  // A lifecycle hook that runs when the component is initialized
 
     let id = Number(this.route.snapshot.paramMap.get('id'));  // Getting the 'id' parameter from the current route snapshot
 
@@ -32,7 +33,7 @@ export class CategoryDetailsComponent implements OnInit {  // A class that defin
   }
 
   categoryDetailsForm = new FormGroup({ // A new instance of FormGroup that defines the form controls and their validators
-    categoryName: new FormControl(null, [
+    categoryName: new FormControl('', [
       Validators.required,
       Validators.minLength(5),
     ]),
@@ -62,24 +63,18 @@ export class CategoryDetailsComponent implements OnInit {  // A class that defin
   // Returns: None
   getCategory(categoryId: number) {
     // Call the testCategoryService to retrieve all categories
-    this.testCategoryService.getAllCategories()
-      .then((categories) => {
-        // Find the category with the matching categoryId
-        let category = categories.find((object: { categoryID: number; }) => {
-          return object.categoryID === categoryId;
-        })
-        // Log all the categories and the category that was found
-        console.table(categories);
-        console.table(category);
-
-        // Update the categoryDetailsForm with the retrieved category details
-        this.categoryDetailsForm.setValue({
-          categoryName: category.categoryName,
-          active: category.active
-        }
-        )
-      })
+    this.testCategoryService.getCategory(categoryId)
+      .then(categoryData => {
+        console.table(categoryData);
+          this.categoryDetailsForm.setValue({
+            categoryName: categoryData.categoryName,
+            active: categoryData.active
+          });
+      }).catch((ex)=>console.log(ex));
+      
+     
   }
+  
   // This function saves the form data for a category by calling the testCategoryService's saveCategory method
   // It then navigates to the testCategory page
   // Parameters: None

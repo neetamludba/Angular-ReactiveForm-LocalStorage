@@ -9,7 +9,7 @@ export class TestCategoryService {
 
   categoryArray: any = [];
 
-  async saveCategory(categoryData: any) {
+  async saveCategory(categoryData: any): Promise<void> {
 
     //get Data form localStorage 
     let parsedCategoryData = localStorage.getItem('categories');
@@ -38,6 +38,8 @@ export class TestCategoryService {
 
     // Now Save Data in Local Storage:
     localStorage.setItem('categories', stringifyCategoryData);
+    
+    return Promise.resolve(void 0);
   }
 
   // Creating getCategory method to gett all the data from local Storage and send it to Catagory list Component
@@ -51,6 +53,21 @@ export class TestCategoryService {
 
     // Return Category Array
     return this.categoryArray;
+  }
+
+  async getCategory(categoryId: number):Promise<any> {
+
+    //get Data form localStorage 
+    let parsedCategoryData = localStorage.getItem('categories');
+
+    // parse the data in category array.
+    this.categoryArray = JSON.parse(parsedCategoryData!) || [];
+
+    let category = this.categoryArray.find((object: { categoryID: number; }) => {
+      return object.categoryID === categoryId;
+    })
+    // Return Category Array
+    return category;
   }
 
   async deleteCategory(category: any) {
